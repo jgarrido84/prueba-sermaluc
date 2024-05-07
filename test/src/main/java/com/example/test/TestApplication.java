@@ -7,7 +7,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 
 @SpringBootApplication
 @EnableConfigurationProperties
-@EntityScan(basePackages = {"model"})
+@EntityScan(basePackages = {"com.example.test.model"})
 public class TestApplication {
 
 	public static void main(String[] args) {
