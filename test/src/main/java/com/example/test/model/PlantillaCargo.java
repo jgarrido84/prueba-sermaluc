@@ -15,31 +15,17 @@ public class PlantillaCargo {
 	@Column(name = "id_plantilla_cargo")
     private Long idPlantillaCargo;
 	
-//	@OneToOne(fetch = FetchType.EAGER, optional = false)
-//	@JoinColumn(name = "id_empresa")
-//    private Empresa empresa;
 	@Column(name="nombre_empresa")
 	private String nombreEmpresa;
 	
 	@Column(name = "id_asoc_comuna")
     private Integer idAsocComuna;
 	
-//	@OneToOne(fetch = FetchType.EAGER, optional = false)
-//	@JoinColumn(name = "id_comuna")
-//    private Comuna comuna;
-	
 	@Column(name="nombre_comuna")
 	private String nombreComuna;
-//	
-//	@OneToOne(fetch = FetchType.EAGER, optional = false)
-//	@JoinColumn(name = "id_sub_sector")
-//    private SubSector subSector;
+
 	@Column(name="nombre_sub_sector")
 	private String nombreSubSector;
-//	
-//	@OneToOne(fetch = FetchType.EAGER, optional = false)
-//	@JoinColumn(name = "id_cargo")
-//    private Cargo cargo;
 	
 	@Column(name="id_tarifaria")
 	private Integer idTarifaria;
@@ -49,6 +35,9 @@ public class PlantillaCargo {
 	
 	@Column(name="formula", length = 500)
 	private String formula;
+	
+	@Column(name="formula_replace", length = 800)
+	private String formulaReplace;
 	
 	@Column(name="desc_cargo")
 	private String descCargo;
@@ -123,6 +112,14 @@ public class PlantillaCargo {
 
 	public void setDescCargo(String descCargo) {
 		this.descCargo = descCargo;
+	}
+
+	public String getFormulaReplace() {
+		return formulaReplace;
+	}
+
+	public void setFormulaReplace(String formulaReplace) {
+		this.formulaReplace = formulaReplace;
 	}
 
 }

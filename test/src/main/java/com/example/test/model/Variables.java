@@ -8,23 +8,22 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "componente")
-public class Componente {
+@Table(name = "variables")
+public class Variables {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "id_componente")
-    private Long idComponente;
+	@Column(name = "id_variables")
+    private Long idVariables;
 	
 	@Column(name = "id_asoc_comuna", nullable = false)
 	private Integer idAsocComuna;
 	
-	@Column(name = "descripcion", nullable = false)
-	private String descripcion;
+	@Column(name = "componente", nullable = false)
+	private String componente;
 	
 	@Column(name = "valor", nullable = false)
 	private Double valor;	
 	
-
 	public Integer getIdAsocComuna() {
 		return idAsocComuna;
 	}
@@ -33,13 +32,28 @@ public class Componente {
 		this.idAsocComuna = idAsocComuna;
 	}
 
-	public String getDescripcion() {
-		return descripcion;
+	public Long getIdVariables() {
+		return idVariables;
 	}
 
-	public void setDescripcion(String descripcion) {
-		this.descripcion = descripcion;
+	public void setIdVariables(Long idVariables) {
+		this.idVariables = idVariables;
 	}
 
+	public Double getValor() {
+		return valor;
+	}
+
+	public void setValor(Double valor) {
+		this.valor = valor;
+	}
+
+	public String getComponente() {
+		return componente;
+	}
+
+	public void setComponente(String componente) {
+		this.componente = componente;
+	}
 
 }

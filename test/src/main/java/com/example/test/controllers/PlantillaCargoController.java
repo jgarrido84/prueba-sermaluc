@@ -8,7 +8,6 @@ import java.util.List;
 
 import org.apache.poi.EncryptedDocumentException;
 import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -17,6 +16,7 @@ import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Example;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,6 +27,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.test.model.PlantillaCargo;
 import com.example.test.repository.PlantillaCargoRepository;
+import com.example.test.service.PlantillaCargoService;
+import com.example.test.utilidades.UtilsExcel;
 
 @RestController
 @RequestMapping("/plantilla")
@@ -34,6 +36,9 @@ public class PlantillaCargoController {
 	
 	@Autowired
 	private PlantillaCargoRepository repo;
+	
+	@Autowired
+	private PlantillaCargoService pcService;
 	
 	private static final Logger logger = LoggerFactory.getLogger(PlantillaCargoController.class);
 	
@@ -67,13 +72,13 @@ public class PlantillaCargoController {
 					Cell cellDescCargo = row.getCell(7);
 					
 					plantillaCargo.setIdAsocComuna((Integer.parseInt(dataFormatter.formatCellValue(cellIdAsocComuna))));
-					plantillaCargo.setNombreEmpresa(returnStringValue(cellNombreEmpresa));
-					plantillaCargo.setNombreComuna(returnStringValue(cellNombreComuna));
-					plantillaCargo.setNombreSubSector(returnStringValue(cellSubNombreSec));
+					plantillaCargo.setNombreEmpresa(UtilsExcel.returnStringValue(cellNombreEmpresa));
+					plantillaCargo.setNombreComuna(UtilsExcel.returnStringValue(cellNombreComuna));
+					plantillaCargo.setNombreSubSector(UtilsExcel.returnStringValue(cellSubNombreSec));
 					plantillaCargo.setIdTarifaria((Integer.parseInt(dataFormatter.formatCellValue(cellIdOpcTarifaria))));
-					plantillaCargo.setOpcTarifariaNombre(returnStringValue(cellOpcTarifariaNombre));
-					plantillaCargo.setFormula(returnStringValue(cellFormula));
-					plantillaCargo.setDescCargo(returnStringValue(cellDescCargo));	
+					plantillaCargo.setOpcTarifariaNombre(UtilsExcel.returnStringValue(cellOpcTarifariaNombre));
+					plantillaCargo.setFormula(UtilsExcel.returnStringValue(cellFormula));
+					plantillaCargo.setDescCargo(UtilsExcel.returnStringValue(cellDescCargo));	
 					listaResul.add(plantillaCargo);
 					
 				} else {
@@ -98,14 +103,18 @@ public class PlantillaCargoController {
 	}
 	
 	@GetMapping("/lista")
-	public ResponseEntity<List<PlantillaCargo>> obtenerPlantillaCargo(@RequestParam(required = false) Long idPlantillaCargo) {
+	public ResponseEntity<List<PlantillaCargo>> obtenerPlantillaCargo(@RequestParam(required = false) Integer idAsocComuna) {
 		try {
 			List<PlantillaCargo> list = new ArrayList<PlantillaCargo>();
 
-			if (idPlantillaCargo == null) {
+			if (idAsocComuna == null) {
 				repo.findAll().forEach(list::add);
 			}else {
-				list.add(repo.findById(idPlantillaCargo).get());
+				PlantillaCargo pcExample = new PlantillaCargo();
+				pcExample.setIdAsocComuna(idAsocComuna);
+				
+				Example<PlantillaCargo> example = Example.of(pcExample); 
+				list = repo.findAll(example);
 			}
 			if (list.isEmpty()) {
 				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -116,38 +125,27 @@ public class PlantillaCargoController {
 			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
+	
+	@GetMapping("/replaceFormula")
+	public ResponseEntity<List<PlantillaCargo>> replaceFormula(@RequestParam(required = false) Integer idAsocComuna) {
+		try {
+			List<PlantillaCargo> list = new ArrayList<>();
+			PlantillaCargo pcExample = new PlantillaCargo();
+			pcExample.setIdAsocComuna(idAsocComuna);
+			pcExample.setFormulaReplace(null);
+			
+			Example<PlantillaCargo> example = Example.of(pcExample); 
+			list = repo.findAll(example);
+			
+			if (list.isEmpty()) {
+				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+			}else {
+				pcService.replaceFormula(list);
+			}
 
-	private static String returnStringValue(Cell cell) {
-	    CellType cellType = cell.getCellType();
-
-	    switch (cellType) {
-	        case NUMERIC -> {
-	            double doubleVal = cell.getNumericCellValue();
-	            if (doubleVal == (int) doubleVal) {
-	                int value = Double.valueOf(doubleVal).intValue();
-	                return String.valueOf(value);
-	            } else {
-	                return String.valueOf(doubleVal);
-	            }
-	        }
-	        case STRING -> {
-	            return cell.getStringCellValue();
-	        }
-	        case ERROR -> {
-	            return String.valueOf(cell.getErrorCellValue());
-	        }
-	        case BLANK -> {
-	            return "";
-	        }
-	        case FORMULA -> {
-	            return cell.getCellFormula();
-	        }
-	        case BOOLEAN -> {
-	            return String.valueOf(cell.getBooleanCellValue());
-	        }
-	    }
-	    return "error decoding string value of the cell";
-
+			return new ResponseEntity<>(list, HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 	}
-
 }
